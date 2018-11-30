@@ -1,5 +1,6 @@
 // @flow
 import React from 'react';
+import PropTypes from 'prop-types'
 import { View, StyleSheet } from 'react-native';
 
 const styles = StyleSheet.create({
@@ -49,13 +50,13 @@ function PagerIndicator({
 }
 
 PagerIndicator.propTypes = {
-  activePagerColor: React.PropTypes.string,
-  children: React.PropTypes.arrayOf(React.PropTypes.shape({})),
-  currentPage: React.PropTypes.number,
-  pagerColor: React.PropTypes.string,
-  pagerMargin: React.PropTypes.number,
-  pagerOffset: React.PropTypes.number,
-  pagerSize: React.PropTypes.number,
+  activePagerColor: PropTypes.string,
+  children: PropTypes.arrayOf(PropTypes.shape({})),
+  currentPage: PropTypes.number,
+  pagerColor: PropTypes.string,
+  pagerMargin: PropTypes.number,
+  pagerOffset: PropTypes.number,
+  pagerSize: PropTypes.number,
 };
 
 PagerIndicator.defaultProps = {
