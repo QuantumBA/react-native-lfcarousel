@@ -1,6 +1,6 @@
 // @flow
 import React, { Component } from 'react';
-import { PanResponder, View, StyleSheet } from 'react-native';
+import { PanResponder, View, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import rebound from 'rebound';
 
 import PagerIndicator from './PagerIndicator';
@@ -14,6 +14,32 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
   },
+  arrowsOverlay: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0,
+    top: 0,
+    backgroundColor: 'transparent',
+  },
+  arrowsRow: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  arrowStyle: {
+    height: 60,
+    width: 60,
+    marginVertical: 2,
+    marginHorizontal: 5,
+  },
+  arrowHidden: {
+    opacity: 0,
+  },
+  arrowVisible: {
+    opacity: 100,
+  }
 });
 
 let timer = null;
@@ -157,7 +183,9 @@ class Carousel extends Component {
   movePage(currentPage: number, manualChange: boolean) {
     this.previousPage = currentPage;
     this.scrollSpring.setEndValue(currentPage * this.state.width);
+
     this.currentPage = currentPage * -1 +1;
+
 
     if (this.currentPage > this.props.children.length) {
       this.currentPage = 1;
@@ -170,9 +198,49 @@ class Carousel extends Component {
     }
   }
 
+  _animateNextPage = () => {
+    let currentPage = Math.floor((this.previousLeft + this.state.width / 2) / this.state.width);
+
+    currentPage -= 1;
+
+    if (currentPage < this.props.children.length * -1) {
+      currentPage = -1;
+      this.scrollSpring.setCurrentValue((currentPage + 1) * this.state.width);
+    }
+
+    this.movePage(currentPage, false);
+  }
+
+  _animatePreviousPage = () => {
+    let currentPage = Math.floor((this.previousLeft + this.state.width / 2) / this.state.width);
+    currentPage += 1;
+
+    if (currentPage < this.props.children.length * -1) {
+      currentPage = -1;
+      this.scrollSpring.setCurrentValue((currentPage + 1) * this.state.width);
+    }
+
+    this.movePage(currentPage, false);
+  }
+
   onLayout = (event) => {
     const { width, height } = event.nativeEvent.layout;
     this.setState({ width, height });
+  }
+
+  renderArrows = () => {
+    return (
+      <View style={styles.arrowsOverlay}>
+        <View style={styles.arrowsRow}>
+          <TouchableOpacity disabled={this.previousPage === 0} style={[this.previousPage === 0 ? styles.arrowHidden : styles.arrowVisible ]} onPress={() => this._animatePreviousPage()}>
+            <Image style={styles.arrowStyle} source={require('./Icons/icon-left.png')} />
+          </TouchableOpacity>
+          <TouchableOpacity disabled={this.previousPage === -4} style={[this.previousPage === -4 ? styles.arrowHidden : styles.arrowVisible ]}onPress={() => this._animateNextPage()}>
+            <Image style={styles.arrowStyle} source={require('./Icons/icon-right.png')} />
+          </TouchableOpacity>
+        </View>
+      </View>
+    )
   }
 
   render() {
@@ -200,6 +268,7 @@ class Carousel extends Component {
             {this.props.children[0]}
           </View>
         </View>
+        { this.renderArrows() }
         <PagerIndicator
           currentPage={this.state.currentPage}
           {...this.props}
