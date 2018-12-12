@@ -18,8 +18,8 @@ const styles = StyleSheet.create({
     position: "absolute",
     left: 0,
     right: 0,
-    bottom: 0,
-    top: 0,
+    bottom: "50%",
+    top: "50%",
     backgroundColor: 'transparent',
   },
   arrowsRow: {
@@ -31,8 +31,15 @@ const styles = StyleSheet.create({
   arrowStyle: {
     height: 60,
     width: 60,
-    marginVertical: 2,
-    marginHorizontal: 5,
+    marginHorizontal: 40,
+  },
+  arrowSmallStyle: {
+    height: 50,
+    width: 50,
+    marginTop: 310,
+    marginRight: "7vw", 
+    marginBottom: 0, 
+    marginLeft: "7vw",
   },
   arrowHidden: {
     opacity: 0,
@@ -233,10 +240,10 @@ class Carousel extends Component {
       <View style={styles.arrowsOverlay}>
         <View style={styles.arrowsRow}>
           <TouchableOpacity disabled={this.previousPage === 0} style={[this.previousPage === 0 ? styles.arrowHidden : styles.arrowVisible ]} onPress={() => this._animatePreviousPage()}>
-            <Image style={styles.arrowStyle} source={require('./Icons/icon-left.png')} />
+            <Image style={[this.props.screenWidth <= 580 ? styles.arrowSmallStyle : styles.arrowStyle]} source={require('./Icons/icon-left.png')} />
           </TouchableOpacity>
           <TouchableOpacity disabled={this.previousPage === -4} style={[this.previousPage === -4 ? styles.arrowHidden : styles.arrowVisible ]}onPress={() => this._animateNextPage()}>
-            <Image style={styles.arrowStyle} source={require('./Icons/icon-right.png')} />
+            <Image style={[this.props.screenWidth <= 580 ? styles.arrowSmallStyle : styles.arrowStyle]} source={require('./Icons/icon-right.png')} />
           </TouchableOpacity>
         </View>
       </View>
