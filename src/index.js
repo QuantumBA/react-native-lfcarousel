@@ -1,54 +1,68 @@
 // @flow
-import React, { Component } from 'react';
-import { PanResponder, View, StyleSheet, Image, TouchableOpacity } from 'react-native';
-import rebound from 'rebound';
+import React, { Component } from 'react'
+import {
+  PanResponder,
+  View,
+}                           from 'react-native'
+import rebound              from 'rebound'
+import styled               from 'styled-components/native'
 
-import PagerIndicator from './PagerIndicator';
+import PagerIndicator       from './PagerIndicator'
 
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'column',
-    overflow: 'hidden',
-  },
-  scrollPanel: {
-    flex: 1,
-    flexDirection: 'row',
-  },
-  arrowsOverlay: {
-    position: "absolute",
-    left: 0,
-    right: 0,
-    bottom: "50%",
-    top: "50%",
-    backgroundColor: 'transparent',
-  },
-  arrowsRow: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  arrowStyle: {
-    height: 60,
-    width: 60,
-    marginHorizontal: 40,
-  },
-  arrowSmallStyle: {
-    height: 50,
-    width: 50,
-    marginTop: 310,
-    marginRight: "7vw", 
-    marginBottom: 0, 
-    marginLeft: "7vw",
-  },
-  arrowHidden: {
-    opacity: 0,
-  },
-  arrowVisible: {
-    opacity: 100,
-  }
-});
-
+const Container = styled.View`
+  flex-direction: column;
+  overflow: hidden;
+`
+const ScrollPanel = styled.View`
+  flex: 1;
+  flex-direction: row;
+  ${({ width }) => width && `
+    width: ${width};
+  `}
+  ${({style}) => style && `
+    ${style}
+  `}
+`
+const Slide = styled.View`
+  ${({ width, height }) => width && height && `
+    width: ${width};
+    height: ${height};
+  `}
+`
+const ArrowsOverlay = styled.View`
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 50%;
+  top: 50%;
+  background-color: transparent;
+  ${({style}) => style && `
+    ${style}
+  `}
+`
+const ArrowsRow = styled.View`
+  flex: 1;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  ${({style}) => style && `
+    ${style}
+  `}
+`
+const ArrowButton = styled.TouchableOpacity`
+  opacity: ${props => (props.hidden ? 0 : 100)}
+  ${({style}) => style && `
+    ${style}
+  `}
+`
+const ArrowImage = styled.Image`
+  width: 60px;
+  height: 60px;
+  margin: 0 40px;
+  ${({style}) => style && `
+    ${style}
+  `}
+`
 let timer = null;
 
 class Carousel extends Component {
@@ -236,51 +250,59 @@ class Carousel extends Component {
   }
 
   renderArrows = () => {
+    const imageLeftSource = this.props.arrowLeftImage ? this.props.arrowLeftImage : require('./Icons/icon-left.png')
+    const imageRightSource = this.props.arrowRightImage ? this.props.arrowRightImage : require('./Icons/icon-right.png')
     return (
-      <View style={styles.arrowsOverlay}>
-        <View style={styles.arrowsRow}>
-          <TouchableOpacity disabled={this.previousPage === 0} style={[this.previousPage === 0 ? styles.arrowHidden : styles.arrowVisible ]} onPress={() => this._animatePreviousPage()}>
-            <Image style={[this.props.screenWidth <= 580 ? styles.arrowSmallStyle : styles.arrowStyle]} source={require('./Icons/icon-left.png')} />
-          </TouchableOpacity>
-          <TouchableOpacity disabled={this.previousPage === -4} style={[this.previousPage === -4 ? styles.arrowHidden : styles.arrowVisible ]}onPress={() => this._animateNextPage()}>
-            <Image style={[this.props.screenWidth <= 580 ? styles.arrowSmallStyle : styles.arrowStyle]} source={require('./Icons/icon-right.png')} />
-          </TouchableOpacity>
-        </View>
-      </View>
+      <ArrowsOverlay style={this.props.arrowsOverlayStyles}>
+        <ArrowsRow style={this.props.arrowsRowStyles}>
+          <ArrowButton style={this.props.arrowButtonStyles} disabled={this.previousPage === 0} hidden={this.previousPage === 0} onPress={() => this._animatePreviousPage()}>
+            <ArrowImage style={this.props.arrowImageStyles} source={imageLeftSource} />
+          </ArrowButton>
+          <ArrowButton style={this.props.arrowButtonStyles} disabled={this.previousPage === -4} hidden={this.previousPage === -4} onPress={() => this._animateNextPage()}>
+            <ArrowImage style={this.props.arrowImageStyles} source={imageRightSource} />
+          </ArrowButton>
+        </ArrowsRow>
+      </ArrowsOverlay>
     )
   }
 
   render() {
     const width = this.state.width * this.props.children.length;
 
-    const slideStyle = { width: this.state.width, height: this.state.height };
+    const slideStyle = `
+      width: ${this.state.width};
+      height: ${this.state.height};
+    `
     const slides = this.props.children.map((slide, index) => (
-      <View key={index} style={slideStyle}>
+      <Slide
+        key={index}
+        style={slideStyle}
+      >
         {slide}
-      </View>
+      </Slide>
     ));
-
     return (
-      <View
-        style={[styles.container, this.props.style]}
+      <Container
+        style={this.props.style}
         onLayout={this.onLayout}
         {...this.panResponder.panHandlers}
       >
-        <View
+        <ScrollPanel
           ref={scrollPanel => { this.scrollPanel = scrollPanel; }}
-          style={[styles.scrollPanel, { width }]}
+          width={width}
+          style={this.props.scrollPanelStyles}
         >
           {slides}
-          <View style={slideStyle}>
+          <Slide style={slideStyle}>
             {this.props.children[0]}
-          </View>
-        </View>
+          </Slide>
+        </ScrollPanel>
         { this.renderArrows() }
         <PagerIndicator
           currentPage={this.state.currentPage}
           {...this.props}
         />
-      </View>
+      </Container>
     );
   }
 }
